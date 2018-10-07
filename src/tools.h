@@ -34,4 +34,10 @@ public:
 /// Normalize the angle between `-pi` to `pi`.
 double normalize_angle(double angle);
 
+/// Convert cartesian measurements (x, y, vx, vy) to polar measurements (rho, phi, rho_dot).
+VectorXd cartesian_to_polar(const VectorXd&);
+
+/// Convert polar measurements (rho, phi, rho_dot) to cartesian measurements (x, y, vx, vy).
+VectorXd polar_to_cartesian(const VectorXd&);
+
 #endif /* TOOLS_H_ */
