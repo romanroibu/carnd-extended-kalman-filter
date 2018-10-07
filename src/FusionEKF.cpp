@@ -31,13 +31,14 @@ FusionEKF::FusionEKF() {
                 0, 0.0009, 0,
                 0, 0, 0.09;
 
-  /**
-  TODO:
-    * Finish initializing the FusionEKF.
-    * Set the process and measurement noises
-  */
+    // laser measurement matrix
+    H_laser_ << 1, 0, 0, 0,
+                0, 1, 0, 0;
 
-
+    // radar Jacobian matrix
+    Hj_ <<  1, 1, 0, 0,
+            1, 1, 0, 0,
+            1, 1, 1, 1;
 }
 
 /**
@@ -52,27 +53,36 @@ void FusionEKF::ProcessMeasurement(const MeasurementPackage &measurement_pack) {
      *  Initialization
      ****************************************************************************/
     if (!is_initialized_) {
-    /**
-    TODO:
-      * Initialize the state ekf_.x_ with the first measurement.
-      * Create the covariance matrix.
-      * Remember: you'll need to convert radar from polar to cartesian coordinates.
-    */
+
         // first measurement
         cout << "EKF: " << endl;
-        ekf_.x_ = VectorXd(4);
-        ekf_.x_ << 1, 1, 1, 1;
+
+        ekf_.P_ = MatrixXd(4, 4);
+        ekf_.P_  << 1, 0, 0, 0,
+                    0, 1, 0, 0,
+                    0, 0, 1000, 0,
+                    0, 0, 0, 1000;
+
+        ekf_.F_ = MatrixXd(4, 4);
+        ekf_.F_  << 1, 0, 1, 0,
+                    0, 1, 0, 1,
+                    0, 0, 1, 0,
+                    0, 0, 0, 1;
 
         if (measurement_pack.sensor_type_ == MeasurementPackage::RADAR) {
-            /**
-             Convert radar from polar to cartesian coordinates and initialize state.
-             */
+            // convert radar from polar to cartesian coordinates and initialize state.
+            ekf_.x_ = polar_to_cartesian(measurement_pack.raw_measurements_);
         }
         else if (measurement_pack.sensor_type_ == MeasurementPackage::LASER) {
-            /**
-             Initialize state.
-             */
+            double px = measurement_pack.raw_measurements_(0);
+            double py = measurement_pack.raw_measurements_(1);
+
+            // initialize state.
+            ekf_.x_ = VectorXd(4);
+            ekf_.x_ << px, py, 0, 0;
         }
+
+        previous_timestamp_ = measurement_pack.timestamp_;
 
         // done initializing, no need to predict or update
         is_initialized_ = true;
