@@ -5,6 +5,8 @@ using Eigen::VectorXd;
 using Eigen::MatrixXd;
 using std::vector;
 
+#define M_TAU (2 * M_PI)
+
 Tools::Tools() {}
 
 Tools::~Tools() {}
@@ -22,4 +24,13 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
   TODO:
     * Calculate a Jacobian here.
   */
+}
+
+double normalize_angle(double angle) {
+
+    while (angle > +M_PI) angle -= M_TAU;
+
+    while (angle < -M_PI) angle += M_TAU;
+
+    return angle;
 }

@@ -31,4 +31,7 @@ public:
 
 };
 
+/// Normalize the angle between `-pi` to `pi`.
+double normalize_angle(double angle);
+
 #endif /* TOOLS_H_ */
