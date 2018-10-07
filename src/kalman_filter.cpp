@@ -1,4 +1,5 @@
 #include "kalman_filter.h"
+#include "tools.h"
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -51,8 +52,23 @@ void KalmanFilter::Update(const VectorXd &z) {
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
-  /**
-  TODO:
-    * update the state by using Extended Kalman Filter equations
-  */
+
+    VectorXd z_pred = cartesian_to_polar(x_);
+    VectorXd y = z - z_pred;
+    y(1) = normalize_angle(y(1));
+
+    MatrixXd Ht = H_.transpose();
+    MatrixXd P_Ht = P_ * Ht;
+
+    MatrixXd S = (H_ * P_Ht) + R_;
+    MatrixXd Si = S.inverse();
+
+    MatrixXd K = P_Ht * Si;
+
+    long x_size = x_.size();
+    MatrixXd I = MatrixXd::Identity(x_size, x_size);
+
+    //update the state by using Extended Kalman Filter equations
+    x_ = x_ + K * y;
+    P_ = (I - K * H_) * P_;
 }
