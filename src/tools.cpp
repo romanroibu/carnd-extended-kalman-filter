@@ -48,10 +48,39 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
 }
 
 MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
-  /**
-  TODO:
-    * Calculate a Jacobian here.
-  */
+
+    MatrixXd H_j(3,4);
+
+    // recover state parameters
+    double px = x_state(0);
+    double py = x_state(1);
+    double vx = x_state(2);
+    double vy = x_state(3);
+
+    // check division by zero
+    if ((px == 0 && py == 0)) {
+        cout << "Division by zero check failed in Tools::CalculateJacobian" << endl;
+        return H_j;
+    }
+
+    // temporary values
+    double a = pow(px, 2) + pow(py, 2);
+    double b = sqrt(a);
+    double c = a * b;
+
+    double h_1_1 = px / b;
+    double h_1_2 = py / b;
+    double h_2_1 = -py / a;
+    double h_2_2 = +px / a;
+    double h_3_1 = py/c * (vx*py - vy*px);
+    double h_3_2 = px/c * (px*vy - py*vx);
+
+    // compute the Jacobian matrix
+    H_j  << h_1_1, h_1_2,     0,     0,
+            h_2_1, h_2_2,     0,     0,
+            h_3_1, h_3_2, h_1_1, h_1_2;
+
+    return H_j;
 }
 
 double normalize_angle(double angle) {
