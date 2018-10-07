@@ -13,10 +13,38 @@ Tools::~Tools() {}
 
 VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
                               const vector<VectorXd> &ground_truth) {
-  /**
-  TODO:
-    * Calculate the RMSE here.
-  */
+
+    VectorXd rmse(4);
+    rmse << 0,0,0,0;
+
+    // check the validity of the following inputs:
+    //  - the estimation vector size should not be zero
+    //  - the estimation vector size should equal ground truth vector size
+    if ((estimations.size() <= 0) || (estimations.size() != ground_truth.size())) {
+        cout << "Invalid estimation and ground truth vectors in Tools::CalculateRMSE." << endl;
+        return rmse;
+    }
+
+    // accumulate squared residuals
+    for(int i=0; i < estimations.size(); ++i) {
+
+        VectorXd x_est  = estimations[i];
+        VectorXd x_true = ground_truth[i];
+
+        VectorXd residuals = x_est - x_true;
+        residuals = residuals.array().pow(2);
+
+        rmse += residuals;
+    }
+
+    // calculate the mean
+    rmse /= estimations.size();
+
+    // calculate the squared root
+    rmse = rmse.array().sqrt();
+
+    // return the result
+    return rmse;
 }
 
 MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
